@@ -1,4 +1,7 @@
+import os
 import csv 
+import logging
+from datetime import date
 from urllib.parse import urlparse, parse_qs
 
 class URLParser:
@@ -15,30 +18,50 @@ class URLParser:
             "a_g_adgroupid":"ad_group_id",
             "a_g_creative":"ad_creative"
         }
+        if not os.path.exists('task1\logs'):
+            os.makedirs('task1\logs')
+        today = date.today()
+        logs_file_name = f"task1\logs\{today.strftime('%d_%m_%Y')}.log"
+        logs_format = '%(asctime)s - %(levelname)s - %(message)s'
+        logging.basicConfig(filename=logs_file_name, level=logging.INFO, format=logs_format)
 
     def read_url_from_file(self):
-        with open(self.input_file, 'r') as file:
-            reader = csv.reader(file, delimiter='\t')
-            next(reader)
-            for row in reader:
-                yield row[0]
+        try:
+            with open(self.input_file, 'r') as file:
+                reader = csv.reader(file, delimiter='\t')
+                next(reader)
+                for row in reader:
+                    yield row[0]
+        except FileNotFoundError:
+            logging.error(f"File {self.input_file} not found, please check if it exists!")
+            raise
 
     def parse_url(self, url):
-        query = urlparse(url).query
-        query_dict = parse_qs(query)
-        url_parsed = [query_dict.get(url_part, [''])[0] for url_part in self.url_mapping.keys()]
-        return url_parsed
+        try:
+            query = urlparse(url).query
+            query_dict = parse_qs(query)
+            url_parsed = [query_dict.get(url_part, [''])[0] for url_part in self.url_mapping.keys()]
+            return url_parsed
+        except Exception as e:
+            logging.error(f"Cannot parse {url}, exception message:\n{str(e)}")
+            return []
 
     def write_parsed_to_file(self):
+        logging.info(f"Parsing URLs from file {self.input_file} and saving to {self.output_file_name}.tsv")
         with open(f"{self.output_file_name}.tsv", 'w', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
             header = ["url"]
             header.extend(self.url_mapping.values())
             writer.writerow(header)
-            for url in self.read_url_from_file():
-                url_parsed = [url]
-                url_parsed.extend(self.parse_url(url))
-                writer.writerow(url_parsed)
+            try:
+                for url in self.read_url_from_file():
+                    url_parsed = [url]
+                    url_parsed.extend(self.parse_url(url))
+                    writer.writerow(url_parsed)
+            except Exception as e:
+                message = "Parsing failed, please check the logs"
+                logging.error(f"{message}. \nError: {str(e)}")
+                raise Exception(message)
 
 if __name__ == "__main__":
     url_parser = URLParser(r'task1\data\task1_input.tsv', r'task1\data\task1_solution')
