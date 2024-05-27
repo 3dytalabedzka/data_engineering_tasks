@@ -5,7 +5,38 @@ from datetime import date
 from urllib.parse import urlparse, parse_qs
 
 class URLParser:
-    def __init__(self, input_file, output_file_name):
+    """
+    A class to parse URLs from an input tsv file and write the parsed results to an output tsv file.
+
+    Attributes:
+    -----------
+    input_file : str
+        Path to the input file containing URLs.
+    output_file_name : str
+        Name the output file to save parsed URLs.
+    url_mapping : dict
+        Dictionary mapping URL query parameters to desired output fields.
+
+    Methods:
+    --------
+    read_url_from_file():
+        Reads URLs from the input file.
+    parse_url(url):
+        Parses a URL and extracts query parameters based on the url_mapping.
+    write_parsed_to_file():
+        Writes parsed URLs to the output file.
+    """
+    def __init__(self, input_file: str, output_file_name: str):
+        """
+        Constructs all the necessary attributes for the URLParser object.
+
+        Parameters:
+        -----------
+        input_file : str
+            Path to the input file containing URLs.
+        output_file_name : str
+            Name of the output file to save parsed URLs.
+        """
         self.input_file = input_file
         self.output_file_name = output_file_name
         self.url_mapping = {
@@ -26,6 +57,14 @@ class URLParser:
         logging.basicConfig(filename=logs_file_name, level=logging.INFO, format=logs_format)
 
     def read_url_from_file(self):
+        """
+        Reads URLs one by one from the input file.
+
+        Yields:
+        -------
+        str
+            A URL read from the input file.
+        """
         try:
             with open(self.input_file, 'r') as file:
                 reader = csv.reader(file, delimiter='\t')
@@ -36,7 +75,20 @@ class URLParser:
             logging.error(f"File {self.input_file} not found, please check if it exists!")
             raise
 
-    def parse_url(self, url):
+    def parse_url(self, url: str):
+        """
+        Parses a URL and extracts query parameters based on the url_mapping.
+
+        Parameters:
+        -----------
+        url : str
+            The URL to be parsed.
+
+        Returns:
+        --------
+        list
+            A list containing parsed query parameter values.
+        """
         try:
             query = urlparse(url).query
             query_dict = parse_qs(query)
@@ -47,6 +99,9 @@ class URLParser:
             return []
 
     def write_parsed_to_file(self):
+        """
+        Writes parsed URLs to the output file.
+        """
         logging.info(f"Parsing URLs from file {self.input_file} and saving to {self.output_file_name}.tsv")
         with open(f"{self.output_file_name}.tsv", 'w', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
@@ -63,7 +118,36 @@ class URLParser:
                 raise Exception("Parsing failed, please check the logs!")
 
 class TestURLParser:
-    def __init__(self, input_file, target_file, test_file_name):
+    """
+    A class to test the URLParser by comparing its output with a target file.
+
+    Attributes:
+    -----------
+    input_file : str
+        Path to the input file containing URLs.
+    target_file : str
+        Path to the target file with expected parsed results.
+    test_file_name : str
+        Name of the file where test results will be saved.
+
+    Methods:
+    --------
+    compare_files():
+        Compares the parsed result file with the target file.
+    """
+    def __init__(self, input_file: str, target_file: str, test_file_name: str):
+        """
+        Constructs all the necessary attributes for the TestURLParser object and initiates the parsing.
+
+        Parameters:
+        -----------
+        input_file : str
+            Path to the input file containing URLs.
+        target_file : str
+            Path to the target file with expected parsed results.
+        test_file_name : str
+            Nme of the file where test results will be saved.
+        """
         self.parser = URLParser(input_file, test_file_name)
         self.parser.write_parsed_to_file()
         self.input_file = input_file
@@ -77,6 +161,14 @@ class TestURLParser:
         logging.basicConfig(filename=logs_file_name, level=logging.INFO, format=logs_format)
 
     def compare_files(self):
+        """
+        Compares the parsed result file with the target file.
+
+        Raises:
+        -------
+        Exception
+            If the parsed results do not match the target file.
+        """
         logging.info(f"Running parser test based on files \ninput: {self.input_file}, \ntarget: {self.target_file}, \nreturned by parser: {self.test_file} ")
         with open(self.test_file, 'r') as test, open(self.target_file, 'r') as target:
             reader1 = csv.reader(test, delimiter='\t')
