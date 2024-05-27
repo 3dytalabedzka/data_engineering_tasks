@@ -1,4 +1,4 @@
-url	ad_bucket	ad_type	ad_source	schema_version	ad_campaign_id	ad_keyword	ad_group_id	ad_creative
+url	ad_bucket	ad_type	ad_source	schema_version	ad_campaign_id	ad_keyword	ad_adgroup_id	ad_creative
 www.tidio.com/?a_source=source_1&utm_medium=cpc&a_g_creative=77263014&a_g_keyword=keyword_44&a_g_campaignid=83925214&a_bucket=bucket_1&utm_term=keyword_44&a_type=type_4&a_v=2&utm_source=source_1&utm_content=xQ0WTlBaUvlOKbt&utm_campaign=83925214	bucket_1	type_4	source_1	2	83925214	keyword_44		77263014
 www.tidio.com/?a_g_adgroupid=51965652&utm_campaign=57849297&a_g_creative=75933843&a_v=2&utm_source=source_1&utm_content=OmFZSyCEz83znMT&a_g_campaignid=57849297&a_bucket=bucket_1&utm_term=keyword_66&a_type=type_1&utm_medium=cpc&a_source=source_1&a_g_keyword=keyword_66	bucket_1	type_1	source_1	2	57849297	keyword_66	51965652	75933843
 www.tidio.com/?utm_medium=cpc&utm_term=keyword_57&a_bucket=bucket_1&utm_source=source_1&utm_content=43C1MKiY7yfGCHI&a_g_creative=71297492&a_source=source_1&a_g_campaignid=75323203&utm_campaign=75323203&a_v=2&a_g_keyword=keyword_57&a_type=type_3&a_g_adgroupid=50869611	bucket_1	type_3	source_1	2	75323203	keyword_57	50869611	71297492
