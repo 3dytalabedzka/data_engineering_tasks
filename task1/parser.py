@@ -1,6 +1,7 @@
 import os
 import csv 
 import logging
+import argparse
 from datetime import date
 from urllib.parse import urlparse, parse_qs
 
@@ -38,7 +39,8 @@ class URLParser:
             Name of the output file to save parsed URLs.
         """
         self.input_file = input_file
-        self.output_file_name = output_file_name
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.output_file_name = os.path.join(current_dir, output_file_name)
         self.url_mapping = {
             "a_bucket":"ad_bucket",
             "a_type":"ad_type",
@@ -51,8 +53,7 @@ class URLParser:
         }
         if not os.path.exists('task1\logs'):
             os.makedirs('task1\logs')
-        today = date.today()
-        logs_file_name = f"task1\logs\{today.strftime('%d_%m_%Y')}.log"
+        logs_file_name = f"task1\logs\{date.today()}.log"
         logs_format = '%(asctime)s - %(levelname)s - %(message)s'
         logging.basicConfig(filename=logs_file_name, level=logging.INFO, format=logs_format)
 
@@ -105,13 +106,13 @@ class URLParser:
         logging.info(f"Parsing URLs from file {self.input_file} and saving to {self.output_file_name}.tsv")
         with open(f"{self.output_file_name}.tsv", 'w', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
-            header = ["url"]
-            header.extend(self.url_mapping.values())
+            header = list(self.url_mapping.values())
+            header.insert(0, 'url')
             writer.writerow(header)
             try:
                 for url in self.read_url_from_file():
-                    url_parsed = [url]
-                    url_parsed.extend(self.parse_url(url))
+                    url_parsed = self.parse_url(url)
+                    url_parsed.insert(0, url)
                     writer.writerow(url_parsed)
             except Exception as e:
                 logging.error(f"Parsing URLs failed due to error: \n{str(e)}")
@@ -128,7 +129,7 @@ class TestURLParser:
     target_file : str
         Path to the target file with expected parsed results.
     test_file_name : str
-        Name of the file where test results will be saved.
+        Name of the file where parsed URLs will be saved.
 
     Methods:
     --------
@@ -146,17 +147,17 @@ class TestURLParser:
         target_file : str
             Path to the target file with expected parsed results.
         test_file_name : str
-            Nme of the file where test results will be saved.
+            Name of the file where parsed URLs will be saved.
         """
         self.parser = URLParser(input_file, test_file_name)
         self.parser.write_parsed_to_file()
         self.input_file = input_file
-        self.test_file = f"{test_file_name}.tsv"
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.test_file = os.path.join(current_dir, f"{test_file_name}.tsv")
         self.target_file = target_file
         if not os.path.exists('task1\logs'):
             os.makedirs('task1\logs')
-        today = date.today()
-        logs_file_name = f"task1\logs\{today.strftime('%d_%m_%Y')}.log"
+        logs_file_name = f"task1\logs\{date.today()}.log"
         logs_format = '%(asctime)s - %(levelname)s - %(message)s'
         logging.basicConfig(filename=logs_file_name, level=logging.INFO, format=logs_format)
 
@@ -183,7 +184,16 @@ class TestURLParser:
             logging.info("Parser test passed!")
 
 if __name__ == "__main__":
-    #url_parser = URLParser(r'task1\data\task1_input.tsv', r'task1\data\task1_solution')
-    #url_parser.write_parsed_to_file()
-    url_parser_test = TestURLParser(r'task1\data\task1_input.tsv', r'task1\data\task1_output.tsv', r'task1\data\task1_solution')
+    parser = argparse.ArgumentParser(description="parse URLs")
+    parser.add_argument("-in", "--input_file", default=r'task1\data\task1_input.tsv', help="Path to input tsv file", required=False)
+    parser.add_argument("-out", "--output_file", default=r'task1\data\task1_output.tsv', help="Path to the target tsv file with expected results", required=False)
+    parser.add_argument("-target", "--target_file", default=r'data\task1_solution', help="Name of tsv file in which results will be stored.", required=False)
+    args = parser.parse_args()    
+
+    # parser
+    # url_parser = URLParser(args.input_file, args.target_file)
+    # url_parser.write_parsed_to_file()
+
+    # test
+    url_parser_test = TestURLParser(args.input_file, args.output_file, args.target_file)
     url_parser_test.compare_files()
