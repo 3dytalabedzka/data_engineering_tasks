@@ -11,12 +11,14 @@ try:
 
     cursor = connection.cursor()
     create_tables_properties_and_values = '''
+        DROP VIEW IF EXISTS projects_for_marketing;
+
         DROP TABLE IF EXISTS project_properties;
 
         CREATE TABLE project_properties
         (id INT,
         project_id INT,
-        label TEXT);
+        label VARCHAR(100));
    
         DROP TABLE IF EXISTS project_properties_values;
 
@@ -24,7 +26,7 @@ try:
         (id INT,
         customer_id INT,
         property_id INT,
-        value TEXT,
+        value VARCHAR(1000),
         create_dte TIMESTAMP);
     '''
     cursor.execute(create_tables_properties_and_values)
@@ -71,13 +73,13 @@ try:
         )
             
         SELECT
-            project_id,
-            customer_id,
-            customer_email,
-            avg_message_volume,
-            estimated_client_volume_usd,
-            plan,
-            interested_in_product
+            CAST(project_id AS INT),
+            CAST(customer_id AS INT),
+            CAST(customer_email AS VARCHAR(100)),
+            CAST(avg_message_volume AS DECIMAL(10,2)),
+            CAST(estimated_client_volume_usd AS DECIMAL(10,2)),
+            CAST(plan AS VARCHAR(100)),
+            CAST(interested_in_product AS VARCHAR(100))
         FROM
             aggregated_newest_properties
         WHERE
@@ -90,8 +92,8 @@ try:
     connection.commit()
     print("View with client information for marketing program created succesfully.")
 
-except (Exception, psycopg2.DatabaseError) as error:
-    print("Error while creating PostgreSQL table", error)
+except Exception as ex:
+    print(f"Error while creating PostgreSQL tables, message: {str(ex)}")
 finally:
     if(connection):
         cursor.close()
