@@ -1,6 +1,7 @@
 import psycopg2
 
 try:
+    # connecting to local PostgreSQL server
     connection = psycopg2.connect(
         user='postgres',
         password='xxxx',
@@ -10,6 +11,7 @@ try:
     )
 
     cursor = connection.cursor()
+    # creating empty tables for the given data
     create_tables_properties_and_values = '''
         DROP VIEW IF EXISTS projects_for_marketing;
 
@@ -33,6 +35,7 @@ try:
     connection.commit()
     print("Empty tables created succesfully")
 
+    # populating the tables
     with open('task2\data\project_properties_values.csv', 'r') as file:
         next(file)
         cursor.copy_from(file, 'project_properties_values', sep=',')
@@ -44,6 +47,7 @@ try:
     connection.commit()
     print("Tables populated succesfully")
 
+    # view in question
     projects_for_marketing_view = '''
         CREATE OR REPLACE VIEW projects_for_marketing AS
         WITH properties_with_values AS (
@@ -91,6 +95,13 @@ try:
     cursor.execute(projects_for_marketing_view)
     connection.commit()
     print("View with client information for marketing program created succesfully.")
+
+    # printing the results
+    cursor.execute("SELECT * FROM projects_for_marketing")
+    print('----------------------------------------')
+    rows = cursor.fetchall()
+    for row in rows:
+        print(f"{row} \n----------------------------------------")
 
 except Exception as ex:
     print(f"Error while creating PostgreSQL tables, message: {str(ex)}")

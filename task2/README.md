@@ -12,4 +12,5 @@ during the download you will be asked to provide a password, note it down as it 
 However if you wish to preview the created tables and the view itself, you can use a gui like 
 for ex. pgAdmin from https://www.pgadmin.org/download/
 
-4. To run the code open terminal in the folder where the file is located and run `python email_marketing_program.py` (might be `python3 ...` depending on set up).
+4. Before running the code, paste the password you provided to line 6 in stead of `xxxx`. 
+To run the code open terminal in the folder where the file is located and run `python email_marketing_program.py` (might be `python3 ...` depending on your set up).
